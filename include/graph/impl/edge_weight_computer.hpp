@@ -177,7 +177,6 @@ pcl::graph::EdgeWeightComputer<GraphT>::compute (GraphT& graph, EdgeWeightMap we
       }
     case SMALL_WEIGHT_REMOVE_EDGE:
       {
-        typedef typename boost::graph_traits<GraphT>::edge_descriptor EdgeId;
         // Note: it is only okay to remove edges this way before any subgraph
         // was created.
         detail::remove_edge_predicate<EdgeWeightMap> predicate (weights, threshold_);
