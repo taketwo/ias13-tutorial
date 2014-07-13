@@ -40,6 +40,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <pcl/common/io.h>
 #include <pcl/common/common.h>
 #include <pcl/common/centroid.h>
 #include <pcl/octree/octree_impl.h>
@@ -75,14 +76,24 @@ pcl::graph::VoxelGridGraphBuilder<PointT, GraphT>::compute (GraphT& graph)
     return;
   }
 
+  typename pcl::PointCloud<PointT>::Ptr transformed (new pcl::PointCloud<PointT>);
+  pcl::copyPointCloud (*input_, *transformed);
+  for (size_t i = 0; i < transformed->size (); ++i)
+  {
+    PointT& p = transformed->points[i];
+    p.x /= p.z;
+    p.y /= p.z;
+    p.z = std::log (p.z);
+  }
+
   Eigen::Vector4f min, max;
-  pcl::getMinMax3D (*input_, *indices_, min, max);
+  pcl::getMinMax3D (*transformed, *indices_, min, max);
 
   // Create and initialize an Octree that stores point indices
   typedef pcl::octree::OctreePointCloud<PointT> Octree;
   Octree octree (voxel_resolution_);
   octree.defineBoundingBox (min (0), min (1), min (2), max (0), max (1), max (2));
-  octree.setInputCloud (input_, indices_);
+  octree.setInputCloud (transformed, indices_);
   octree.addPointsFromInputCloud ();
 
   graph = GraphT (octree.getLeafCount ());
@@ -91,7 +102,7 @@ pcl::graph::VoxelGridGraphBuilder<PointT, GraphT>::compute (GraphT& graph)
   KeyVertexMap key_to_vertex_map;
 
   point_to_vertex_map_.clear ();
-  point_to_vertex_map_.resize (input_->size (), std::numeric_limits<VertexId>::max ());
+  point_to_vertex_map_.resize (transformed->size (), std::numeric_limits<VertexId>::max ());
 
   typename Octree::LeafNodeIterator leaf_itr = octree.leaf_begin ();
   for (VertexId v = 0; leaf_itr != octree.leaf_end (); ++leaf_itr, ++v)
