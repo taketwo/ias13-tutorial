@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
-set (CMAKE_BUILD_TYPE RelWithDebInfo)
-
 project      (ias13-tutorial)
 find_package (Qt4 REQUIRED)
 find_package (VTK REQUIRED)
@@ -13,6 +11,8 @@ add_definitions     (${PCL_DEFINITIONS})
 
 include_directories (${PROJECT_SOURCE_DIR}/include)
 include_directories (${CMAKE_BINARY_DIR})
+
+set  (CMAKE_BUILD_TYPE RelWithDebInfo)
 
 set  (project_SOURCES src/main.cpp src/main_window.cpp src/seed_selection.cpp)
 set  (project_HEADERS include/main_window.h include/seed_selection.h)
