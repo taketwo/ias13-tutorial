@@ -128,7 +128,7 @@ pcl::graph::computeSignedCurvatures (Graph& graph)
   }
 
   for (VertexId vertex = 0; vertex < boost::num_vertices (graph); ++vertex)
-    graph[vertex].curvature = std::copysign (graph[vertex].curvature, convexities[vertex]);
+    graph[vertex].curvature = copysign (graph[vertex].curvature, convexities[vertex]);
 }
 
 template <typename Graph> size_t
