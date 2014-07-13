@@ -129,7 +129,7 @@ namespace pcl
                  boost::undirectedS,
                  boost::property<boost::vertex_color_t, uint32_t>,
                  boost::property<boost::edge_weight_t, float,
-                 boost::property<boost::edge_index_t, int>>>>              Graph;
+                 boost::property<boost::edge_index_t, int> > > >           Graph;
         typedef typename boost::graph_traits<Graph>::vertex_descriptor     VertexId;
         typedef typename boost::graph_traits<Graph>::edge_descriptor       EdgeId;
         typedef typename boost::graph_traits<Graph>::vertex_iterator       VertexIterator;
