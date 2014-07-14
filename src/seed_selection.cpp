@@ -7,8 +7,8 @@
 SeedSelection::SeedSelection (QObject* parent)
 : QAbstractListModel (parent)
 , seeds_cloud_ (new LabeledPointCloud)
-, num_labels_ (1)
-, current_label_ (1)
+, num_labels_ (0)
+, current_label_ (0)
 {
 }
 
@@ -26,19 +26,48 @@ QVariant
 SeedSelection::data (const QModelIndex& index, int role) const
 {
   if (role == Qt::DisplayRole)
-    return QString ("Label %1").arg (index.row() + 1);
+  {
+    uint32_t label = index.row () + 1;
+    return QString ("%1    %2 seeds").arg (label).arg (countSeedsWithLabel (label));
+  }
   return QVariant ();
 }
 
 void
-SeedSelection::pointPicked (const pcl::PointXYZ& p)
+SeedSelection::pickPoint (const pcl::PointXYZ& p)
 {
-  if (isDuplicate (p))
-    return;
+  using namespace pcl::utils;
+  for (size_t i = 0; i < seeds_cloud_->size (); ++i)
+  {
+    pcl::PointXYZL& pt = seeds_cloud_->points[i];
+    if (equal (p.x, pt.x) && equal (p.y, pt.y) && equal (p.z, pt.z))
+    {
+      if (pt.label == current_label_)
+      {
+        LabeledPointCloudPtr new_seeds (new LabeledPointCloud);
+        for (size_t j = 0; j < seeds_cloud_->size (); ++j)
+          if (j != i)
+            new_seeds->push_back (seeds_cloud_->at (j));
+        seeds_cloud_.swap (new_seeds);
+        seedsChanged ();
+        dataChanged (QModelIndex (), QModelIndex ());
+        return;
+      }
+      else
+      {
+        pt.label = current_label_;
+        seedsChanged ();
+        dataChanged (QModelIndex (), QModelIndex ());
+        return;
+      }
+    }
+  }
 
   pcl::PointXYZL pt;
   pt.x = p.x, pt.y = p.y, pt.z = p.z, pt.label = current_label_;
   seeds_cloud_->push_back (pt);
+  seedsChanged ();
+  dataChanged (QModelIndex (), QModelIndex ());
 }
 
 QModelIndex
@@ -91,16 +120,13 @@ SeedSelection::currentChanged (const QItemSelection& current, const QItemSelecti
   seedsChanged ();
 }
 
-bool
-SeedSelection::isDuplicate (const pcl::PointXYZ& pt)
+size_t
+SeedSelection::countSeedsWithLabel (uint32_t label) const
 {
-  using namespace pcl::utils;
+  size_t count = 0;
   for (size_t i = 0; i < seeds_cloud_->size (); ++i)
-  {
-    const pcl::PointXYZL& p = seeds_cloud_->points[i];
-    if (equal (p.x, pt.x) && equal (p.y, pt.y) && equal (p.z, pt.z))
-      return true;
-  }
-  return false;
+    if (seeds_cloud_->points[i].label == label)
+      ++count;
+  return count;
 }
 

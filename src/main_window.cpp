@@ -48,6 +48,9 @@ MainWindow::MainWindow (const std::string& filename, QWidget* parent)
            this,
            SLOT (seedsChanged ()));
 
+  QModelIndex index = seed_selection_->addNewLabel ();
+  ui_->list_labels->selectionModel ()->select (index, QItemSelectionModel::ClearAndSelect);
+
   buttonUpdateClicked ();
 }
 
@@ -122,8 +125,7 @@ MainWindow::pointPickingCallback (const pcl::visualization::PointPickingEvent& e
   pcl::PointXYZ p;
   event.getPoint (p.x, p.y, p.z);
 
-  seed_selection_->pointPicked (p);
-  displaySeeds ();
+  seed_selection_->pickPoint (p);
 }
 
 void

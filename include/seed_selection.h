@@ -33,7 +33,7 @@ class SeedSelection : public QAbstractListModel
     data (const QModelIndex& index, int role) const;
 
     void
-    pointPicked (const pcl::PointXYZ& p);
+    pickPoint (const pcl::PointXYZ& p);
 
     QModelIndex
     addNewLabel ();
@@ -57,12 +57,17 @@ class SeedSelection : public QAbstractListModel
 
   Q_SIGNALS:
 
+    /** This signal is triggered when the seeds cloud is changed.
+      *
+      * This includes addition/deletion of labels/seeds, as well as changes of
+      * visualization colors when the user selects a label. */
     void
     seedsChanged ();
 
   private:
 
-    bool isDuplicate (const pcl::PointXYZ& pt);
+    size_t
+    countSeedsWithLabel (uint32_t label) const;
 
     LabeledPointCloudPtr seeds_cloud_;
 

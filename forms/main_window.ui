@@ -79,9 +79,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>110</y>
       <width>101</width>
-      <height>311</height>
+      <height>281</height>
      </rect>
     </property>
    </widget>
@@ -89,7 +89,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>410</y>
+      <y>400</y>
       <width>101</width>
       <height>22</height>
      </rect>
@@ -115,13 +115,26 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>440</y>
+      <y>430</y>
       <width>101</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
      <string>Delete label</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_labels">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>59</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Labels</string>
     </property>
    </widget>
   </widget>
