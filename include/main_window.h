@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
 
     MainWindow (const std::string& filename, QWidget* parent = 0);
 
-    ~MainWindow();
+    ~MainWindow ();
 
   public Q_SLOTS:
 
@@ -54,6 +54,25 @@ class MainWindow : public QMainWindow
     {
       displayGraphVertices ();
       displayGraphEdges ();
+    }
+
+    void
+    onActionExitTriggered ()
+    {
+      this->close ();
+    }
+
+    void
+    onActionLoadViewpointTriggered ()
+    {
+      if (boost::filesystem::exists ("viewpoint.cam"))
+        viewer_->loadCameraParameters ("viewpoint.cam");
+    }
+
+    void
+    onActionSaveViewpointTriggered ()
+    {
+      viewer_->saveCameraParameters ("viewpoint.cam");
     }
 
     void

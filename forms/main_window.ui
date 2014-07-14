@@ -90,6 +90,9 @@
         <property name="text">
          <string>Graph vertices</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -153,7 +156,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="QMenuBar" name="menu_bar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -162,16 +165,49 @@
      <height>19</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
+   <widget class="QMenu" name="menu_file">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_save_viewpoint"/>
+    <addaction name="action_load_viewpoint"/>
+    <addaction name="separator"/>
+    <addaction name="action_save_seeds"/>
+    <addaction name="action_load_seeds"/>
+    <addaction name="separator"/>
+    <addaction name="action_exit"/>
+   </widget>
+   <addaction name="menu_file"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="action_save_viewpoint">
+   <property name="text">
+    <string>Save viewpoint</string>
+   </property>
+  </action>
+  <action name="action_load_viewpoint">
+   <property name="text">
+    <string>Load viewpoint</string>
+   </property>
+  </action>
+  <action name="action_save_seeds">
+   <property name="text">
+    <string>Save seeds</string>
+   </property>
+  </action>
+  <action name="action_load_seeds">
+   <property name="text">
+    <string>Load seeds</string>
+   </property>
+  </action>
+  <action name="action_exit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -279,6 +315,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_exit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionExitTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_load_viewpoint</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionLoadViewpointTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_save_viewpoint</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionSaveViewpointTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>buttonUpdateClicked()</slot>
@@ -286,5 +370,8 @@
   <slot>buttonSegmentClicked()</slot>
   <slot>buttonDeleteLabelClicked()</slot>
   <slot>checkboxDisplayStateChanged(int)</slot>
+  <slot>onActionExitTriggered()</slot>
+  <slot>onActionLoadViewpointTriggered()</slot>
+  <slot>onActionSaveViewpointTriggered()</slot>
  </slots>
 </ui>
