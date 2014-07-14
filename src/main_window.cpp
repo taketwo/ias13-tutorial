@@ -16,6 +16,7 @@
 #include "ui_main_window.h"
 
 #include "graph/voxel_grid_graph_builder.h"
+#include "graph/nearest_neighbors_graph_builder.h"
 
 MainWindow::MainWindow (const std::string& filename, QWidget* parent)
 : QMainWindow (parent)
@@ -59,7 +60,7 @@ MainWindow::MainWindow (const std::string& filename, QWidget* parent)
   QModelIndex index = seed_selection_->addNewLabel ();
   ui_->list_labels->selectionModel ()->select (index, QItemSelectionModel::ClearAndSelect);
 
-  buttonUpdateClicked ();
+  onButtonUpdateVoxelsClicked ();
 }
 
 MainWindow::~MainWindow ()
@@ -74,10 +75,37 @@ MainWindow::seedsChanged ()
 }
 
 void
-MainWindow::buttonUpdateClicked ()
+MainWindow::onButtonUpdateVoxelsClicked ()
 {
   double r = ui_->spinbox_voxel_resolution->value ();
   pcl::graph::VoxelGridGraphBuilder<PointT, Graph> graph_builder (r);
+  graph_builder.setInputCloud (cloud_);
+  graph_builder.compute (*graph_);
+
+  pcl::graph::computeNormalsAndCurvatures (*graph_);
+  pcl::graph::computeSignedCurvatures (*graph_);
+  {
+    using namespace pcl::graph;
+    typedef EdgeWeightComputer<Graph> EWC;
+    EWC computer;
+    computer.addTerm<terms::XYZ> (3.0f, EWC::NORMALIZATION_GLOBAL);
+    computer.addTerm<terms::Normal> (0.01f, 0.0f);
+    computer.addTerm<terms::Curvature> (0.0001f, 0.0f);
+    computer.addTerm<terms::RGB> (3.0f, EWC::NORMALIZATION_GLOBAL);
+    computer.setSmallWeightThreshold (1e-5);
+    computer.setSmallWeightPolicy (EWC::SMALL_WEIGHT_COERCE_TO_THRESHOLD);
+    computer.compute (*graph_);
+  }
+
+  displayGraphVertices ();
+  displayGraphEdges ();
+}
+
+void
+MainWindow::onButtonUpdateNeighborsClicked ()
+{
+  int n = ui_->spinbox_nearest_neighbors->value ();
+  pcl::graph::NearestNeighborsGraphBuilder<PointT, Graph> graph_builder (n);
   graph_builder.setInputCloud (cloud_);
   graph_builder.compute (*graph_);
 

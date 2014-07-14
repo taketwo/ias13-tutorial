@@ -39,7 +39,10 @@ class MainWindow : public QMainWindow
   public Q_SLOTS:
 
     void
-    buttonUpdateClicked ();
+    onButtonUpdateVoxelsClicked ();
+
+    void
+    onButtonUpdateNeighborsClicked ();
 
     void
     buttonNewLabelClicked ();
