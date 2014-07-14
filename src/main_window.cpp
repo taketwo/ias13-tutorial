@@ -1,9 +1,17 @@
 #include <QModelIndex>
+
+#include <vtkLine.h>
+#include <vtkPolyLine.h>
+#include <vtkPolyData.h>
+#include <vtkCellData.h>
+#include <vtkCellArray.h>
+#include <vtkSmartPointer.h>
 #include <vtkRenderWindow.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/io.h>
 
+#include "color.h"
 #include "main_window.h"
 #include "ui_main_window.h"
 
@@ -89,6 +97,7 @@ MainWindow::buttonUpdateClicked ()
   }
 
   displayGraphVertices ();
+  displayGraphEdges ();
 }
 
 void
@@ -133,13 +142,48 @@ MainWindow::displayGraphVertices (bool how)
 {
   const uint32_t COLORS[] = { 0x9E9E9E, 0x29CC00, 0x008FCC, 0xA300CC, 0xCC3D00, 0xFFDD00, 0x63E6E6, 0xA5E663, 0x9E2B2B };
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr vertices (new pcl::PointCloud<pcl::PointXYZRGB>);
-  pcl::copyPointCloud (*pcl::graph::point_cloud (*graph_), *vertices);
-  boost::get (boost::vertex_color, *graph_);
-  if (how == false)
-    for (size_t i = 0; i < vertices->size (); ++i)
-      vertices->at (i).rgb = COLORS[boost::get (boost::vertex_color, *graph_, i)];
+  if (ui_->checkbox_graph_vertices->checkState ())
+  {
+    pcl::copyPointCloud (*pcl::graph::point_cloud (*graph_), *vertices);
+    boost::get (boost::vertex_color, *graph_);
+    if (how == false)
+      for (size_t i = 0; i < vertices->size (); ++i)
+        vertices->at (i).rgb = COLORS[boost::get (boost::vertex_color, *graph_, i)];
+  }
   viewer_->updatePointCloud (vertices, "vertices");
   ui_->qvtkWidget->update ();
+}
+
+void
+MainWindow::displayGraphEdges (uint32_t color)
+{
+  viewer_->removeShape ("edges");
+  if (ui_->checkbox_graph_edges->checkState ())
+  {
+    vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New ();
+    vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New ();
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New ();
+    vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New ();
+    colors->SetNumberOfComponents (3);
+    unsigned char c[3];
+    boost::graph_traits<Graph>::edge_iterator s, e;
+    int id = 0;
+    for (boost::tie (s, e) = boost::edges (*graph_); s != e; ++s)
+    {
+      vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New ();
+      points->InsertNextPoint ((*graph_)[boost::source (*s, *graph_)].getVector3fMap ().data ());
+      points->InsertNextPoint ((*graph_)[boost::target (*s, *graph_)].getVector3fMap ().data ());
+      line->GetPointIds ()->SetId (0, id++);
+      line->GetPointIds ()->SetId (1, id++);
+      cells->InsertNextCell (line);
+      getRGBFromColor (getColor (boost::get (boost::edge_weight_t (), *graph_, *s)), c);
+      colors->InsertNextTupleValue (c);
+    }
+    polydata->SetPoints (points);
+    polydata->SetLines (cells);
+    polydata->GetCellData ()->SetScalars (colors);
+    viewer_->addModelFromPolyData (polydata, "edges");
+  }
 }
 
 void

@@ -50,6 +50,13 @@ class MainWindow : public QMainWindow
     buttonSegmentClicked ();
 
     void
+    checkboxDisplayStateChanged (int state)
+    {
+      displayGraphVertices ();
+      displayGraphEdges ();
+    }
+
+    void
     seedsChanged ();
 
   private:
@@ -59,6 +66,9 @@ class MainWindow : public QMainWindow
 
     void
     displayGraphVertices (bool how = true);
+
+    void
+    displayGraphEdges (uint32_t color = 0);
 
     void
     displaySeeds ();
