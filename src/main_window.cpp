@@ -1,3 +1,5 @@
+#include <ctime>
+
 #include <QModelIndex>
 
 #include <vtkLine.h>
@@ -24,6 +26,8 @@ MainWindow::MainWindow (const std::string& filename, QWidget* parent)
 , seed_selection_ (new SeedSelection)
 , graph_ (new Graph)
 {
+  srand (time (0));
+
   ui_->setupUi (this);
   viewer_.reset (new pcl::visualization::PCLVisualizer ("PCL Visualizer", false));
   ui_->qvtkWidget->SetRenderWindow (viewer_->getRenderWindow ());
@@ -84,18 +88,7 @@ MainWindow::onButtonUpdateVoxelsClicked ()
 
   pcl::graph::computeNormalsAndCurvatures (*graph_);
   pcl::graph::computeSignedCurvatures (*graph_);
-  {
-    using namespace pcl::graph;
-    typedef EdgeWeightComputer<Graph> EWC;
-    EWC computer;
-    computer.addTerm<terms::XYZ> (3.0f, EWC::NORMALIZATION_GLOBAL);
-    computer.addTerm<terms::Normal> (0.01f, 0.0f);
-    computer.addTerm<terms::Curvature> (0.0001f, 0.0f);
-    computer.addTerm<terms::RGB> (3.0f, EWC::NORMALIZATION_GLOBAL);
-    computer.setSmallWeightThreshold (1e-5);
-    computer.setSmallWeightPolicy (EWC::SMALL_WEIGHT_COERCE_TO_THRESHOLD);
-    computer.compute (*graph_);
-  }
+  computeEdgeWeights ();
 
   displayGraphVertices ();
   displayGraphEdges ();
@@ -111,18 +104,7 @@ MainWindow::onButtonUpdateNeighborsClicked ()
 
   pcl::graph::computeNormalsAndCurvatures (*graph_);
   pcl::graph::computeSignedCurvatures (*graph_);
-  {
-    using namespace pcl::graph;
-    typedef EdgeWeightComputer<Graph> EWC;
-    EWC computer;
-    computer.addTerm<terms::XYZ> (3.0f, EWC::NORMALIZATION_GLOBAL);
-    computer.addTerm<terms::Normal> (0.01f, 0.0f);
-    computer.addTerm<terms::Curvature> (0.0001f, 0.0f);
-    computer.addTerm<terms::RGB> (3.0f, EWC::NORMALIZATION_GLOBAL);
-    computer.setSmallWeightThreshold (1e-5);
-    computer.setSmallWeightPolicy (EWC::SMALL_WEIGHT_COERCE_TO_THRESHOLD);
-    computer.compute (*graph_);
-  }
+  computeEdgeWeights ();
 
   displayGraphVertices ();
   displayGraphEdges ();
@@ -168,7 +150,6 @@ MainWindow::pointPickingCallback (const pcl::visualization::PointPickingEvent& e
 void
 MainWindow::displayGraphVertices (bool how)
 {
-  const uint32_t COLORS[] = { 0x9E9E9E, 0x29CC00, 0x008FCC, 0xA300CC, 0xCC3D00, 0xFFDD00, 0x63E6E6, 0xA5E663, 0x9E2B2B };
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr vertices (new pcl::PointCloud<pcl::PointXYZRGB>);
   if (ui_->checkbox_graph_vertices->checkState ())
   {
@@ -176,7 +157,12 @@ MainWindow::displayGraphVertices (bool how)
     boost::get (boost::vertex_color, *graph_);
     if (how == false)
       for (size_t i = 0; i < vertices->size (); ++i)
-        vertices->at (i).rgb = COLORS[boost::get (boost::vertex_color, *graph_, i)];
+      {
+        uint32_t label = boost::get (boost::vertex_color, *graph_, i);
+        if (!colormap_.count (label))
+          colormap_[label] = generateRandomColor ();
+        vertices->at (i).rgba = colormap_[label];
+      }
   }
   viewer_->updatePointCloud (vertices, "vertices");
   ui_->qvtkWidget->update ();
@@ -219,5 +205,40 @@ MainWindow::displaySeeds ()
 {
   viewer_->updatePointCloud (seed_selection_->getPointCloudForVisualization (), "seeds");
   ui_->qvtkWidget->update ();
+}
+
+void
+MainWindow::computeEdgeWeights ()
+{
+  using namespace pcl::graph;
+  typedef EdgeWeightComputer<Graph> EWC;
+  EWC computer;
+  if (ui_->checkbox_xyz->checkState ())
+  {
+    float influence = ui_->spinbox_xyz_influence->value ();
+    float multiplier = ui_->checkbox_xyz_only_concave->checkState () ? 0.0 : 1.0;
+    computer.addTerm<terms::XYZ> (influence, multiplier, EWC::NORMALIZATION_LOCAL);
+  }
+  if (ui_->checkbox_normal->checkState ())
+  {
+    float influence = ui_->spinbox_normal_influence->value ();
+    float multiplier = ui_->checkbox_normal_only_concave->checkState () ? 0.0 : 1.0;
+    computer.addTerm<terms::Normal> (influence, multiplier);
+  }
+  if (ui_->checkbox_curvature->checkState ())
+  {
+    float influence = ui_->spinbox_curvature_influence->value ();
+    float multiplier = ui_->checkbox_curvature_only_concave->checkState () ? 0.0 : 1.0;
+    computer.addTerm<terms::Curvature> (influence, multiplier);
+  }
+  if (ui_->checkbox_rgb->checkState ())
+  {
+    float influence = ui_->spinbox_rgb_influence->value ();
+    float multiplier = ui_->checkbox_rgb_only_concave->checkState () ? 0.0 : 1.0;
+    computer.addTerm<terms::RGB> (influence, multiplier, EWC::NORMALIZATION_GLOBAL);
+  }
+  computer.setSmallWeightThreshold (1e-5);
+  computer.setSmallWeightPolicy (EWC::SMALL_WEIGHT_COERCE_TO_THRESHOLD);
+  computer.compute (*graph_);
 }
 

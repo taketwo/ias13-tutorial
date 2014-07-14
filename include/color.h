@@ -1,7 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <ctime>
 #include <cmath>
 #include <cstdlib>
 
@@ -69,7 +68,6 @@ getRGBFromColor (Color color, uint8_t* rgb)
 Color
 generateRandomColor ()
 {
-  srand (time (0));
   uint8_t r = static_cast<uint8_t> ((rand () % 256));
   uint8_t g = static_cast<uint8_t> ((rand () % 256));
   uint8_t b = static_cast<uint8_t> ((rand () % 256));

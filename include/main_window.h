@@ -1,6 +1,8 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
+#include <map>
+
 #include <QMainWindow>
 
 #include <pcl/visualization/pcl_visualizer.h>
@@ -113,6 +115,9 @@ class MainWindow : public QMainWindow
     void
     displaySeeds ();
 
+    void
+    computeEdgeWeights ();
+
     Ui::MainWindow* ui_;
 
     pcl::visualization::PCLVisualizer::Ptr viewer_;
@@ -120,6 +125,7 @@ class MainWindow : public QMainWindow
     PointCloudT::Ptr cloud_;
     GraphPtr graph_;
     SeedSelection::Ptr seed_selection_;
+    std::map<uint32_t, uint32_t> colormap_;
 
 };
 
