@@ -179,7 +179,7 @@
    </widget>
    <addaction name="menu_file"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="status_bar"/>
   <action name="action_save_viewpoint">
    <property name="text">
     <string>Save viewpoint</string>
@@ -363,6 +363,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_load_seeds</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionLoadSeedsTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_save_seeds</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionSaveSeedsTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>buttonUpdateClicked()</slot>
@@ -373,5 +405,7 @@
   <slot>onActionExitTriggered()</slot>
   <slot>onActionLoadViewpointTriggered()</slot>
   <slot>onActionSaveViewpointTriggered()</slot>
+  <slot>onActionLoadSeedsTriggered()</slot>
+  <slot>onActionSaveSeedsTriggered()</slot>
  </slots>
 </ui>

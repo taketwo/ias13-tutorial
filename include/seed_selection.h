@@ -47,6 +47,9 @@ class SeedSelection : public QAbstractListModel
       return seeds_cloud_;
     }
 
+    void
+    setSeeds (const LabeledPointCloud& seeds);
+
     ColoredPointCloudPtr
     getPointCloudForVisualization ();
 

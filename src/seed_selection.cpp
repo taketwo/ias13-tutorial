@@ -100,6 +100,19 @@ SeedSelection::deleteLabel ()
   seedsChanged ();
 }
 
+void
+SeedSelection::setSeeds (const LabeledPointCloud& seeds)
+{
+  pcl::copyPointCloud (seeds, *seeds_cloud_);
+  num_labels_ = 0;
+  for (size_t i = 0; i < seeds.size (); ++i)
+    if (seeds[i].label > num_labels_)
+      num_labels_ = seeds[i].label;
+  current_label_ = num_labels_;
+  dataChanged (QModelIndex (), QModelIndex ());
+  seedsChanged ();
+}
+
 SeedSelection::ColoredPointCloudPtr
 SeedSelection::getPointCloudForVisualization ()
 {

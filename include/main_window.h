@@ -6,6 +6,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+#include <pcl/io/pcd_io.h>
 
 #include "seed_selection.h"
 #include "random_walker_segmentation.h"
@@ -73,6 +74,23 @@ class MainWindow : public QMainWindow
     onActionSaveViewpointTriggered ()
     {
       viewer_->saveCameraParameters ("viewpoint.cam");
+    }
+
+    void
+    onActionLoadSeedsTriggered ()
+    {
+      if (boost::filesystem::exists ("seeds.pcd"))
+      {
+        pcl::PointCloud<pcl::PointXYZL> seeds;
+        pcl::io::loadPCDFile<pcl::PointXYZL> ("seeds.pcd", seeds);
+        seed_selection_->setSeeds (seeds);
+      }
+    }
+
+    void
+    onActionSaveSeedsTriggered ()
+    {
+      pcl::io::savePCDFile ("seeds.pcd", *seed_selection_->getSelectedSeeds ());
     }
 
     void
