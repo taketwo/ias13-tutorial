@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow
     typedef pcl::PointCloud<PointT> PointCloudT;
     typedef pcl::PointCloud<PointWithNormalT> PointCloudWithNormalT;
 
-    typedef pcl::segmentation::RandomWalkerSegmentation<pcl::PointXYZRGB> RandomWalkerSegmentation;
+    typedef pcl::segmentation::RandomWalkerSegmentation<PointWithNormalT> RandomWalkerSegmentation;
     typedef RandomWalkerSegmentation::Graph Graph;
     typedef RandomWalkerSegmentation::GraphPtr GraphPtr;
     typedef RandomWalkerSegmentation::GraphConstPtr GraphConstPtr;
